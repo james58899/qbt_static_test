@@ -1095,7 +1095,9 @@ _release_info() {
 
 		## Architectures and build info
 
-		These builds were created on Alpine linux using [custom prebuilt musl toolchains](https://github.com/userdocs/musl-cross-make) for:
+		These source code files are used for workflows: [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files/releases/latest)
+
+		These builds were created on Alpine linux using [custom prebuilt musl toolchains](https://github.com/userdocs/qbt-musl-cross-make/releases/latest) for:
 
 		|  Arch   | Alpine Cross build files | Arch config |
 		| :-----: | :----------------------: | :---------: |
