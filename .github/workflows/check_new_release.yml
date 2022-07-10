@@ -44,6 +44,7 @@ jobs:
             fi
           done
 
+      - name: Invoke workflow in another repo with inputs
         if: env.trigger_workflow == 'yes'
         uses: benc-uk/workflow-dispatch@v1
         with:
