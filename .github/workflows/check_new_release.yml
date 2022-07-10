@@ -50,4 +50,4 @@ jobs:
         with:
           workflow: matrix_multi_build_and_release_qbt_workflow_files.yml
           repo: userdocs/qbittorrent-nox-static
-          token: ${{ secrets.PERSONAL_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
