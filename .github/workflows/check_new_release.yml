@@ -48,6 +48,6 @@ jobs:
         if: env.trigger_workflow == 'yes'
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: matrix_multi_build_and_release_qbt_workflow_files.yml
+          workflow: matrix multi build and release - qbt-workflow-files
           repo: userdocs/qbt_static_test
           token: ${{ secrets.GITHUB_TOKEN }}
