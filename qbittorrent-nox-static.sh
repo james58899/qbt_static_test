@@ -93,7 +93,7 @@ set_default_values() {
 
 	qbt_patches_url="${qbt_patches_url:-}" # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
 
-	libtorrent_version="${libtorrent_version:-2.0}" # Set this here so it is easy to see and change
+	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}" # Set this here so it is easy to see and change
 
 	if [[ "${qbt_build_tool}" == 'cmake' ]]; then
 		qbt_qt_version=${qbt_qt_version:-6.3}                                      # Set this here so it is easy to see and change. PATCH versions are detected automatically - for example, 5.15.4 will be used over 5.15.0
@@ -557,7 +557,7 @@ set_module_urls() {
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
 	libtorrent_github_tags_list="$(git_git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
 
-	libtorrent_github_tag_default="$(grep -Eom1 "v${libtorrent_version}.([0-9]{1,2})" <<< "${libtorrent_github_tags_list}")"
+	libtorrent_github_tag_default="$(grep -Eom1 "v${qbt_libtorrent_version}.([0-9]{1,2})" <<< "${libtorrent_github_tags_list}")"
 	libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
 
 	qbittorrent_github_url="https://github.com/qbittorrent/qBittorrent.git"
@@ -1272,8 +1272,8 @@ while (("${#}")); do
 			shift
 			;;
 		-m | --master)
-			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${libtorrent_version//./_}")"
-			test_git_ouput "${libtorrent_github_tag}" "RC_${libtorrent_version//./_}" "libtorrent"
+			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${qbt_libtorrent_version//./_}")"
+			test_git_ouput "${libtorrent_github_tag}" "RC_${qbt_libtorrent_version//./_}" "libtorrent"
 
 			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
 			test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
@@ -1281,8 +1281,8 @@ while (("${#}")); do
 			shift
 			;;
 		-lm | --libtorrent-master)
-			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${libtorrent_version//./_}")"
-			test_git_ouput "${libtorrent_github_tag}" "RC_${libtorrent_version//./_}" "libtorrent"
+			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${qbt_libtorrent_version//./_}")"
+			test_git_ouput "${libtorrent_github_tag}" "RC_${qbt_libtorrent_version//./_}" "libtorrent"
 			override_workflow="yes"
 			shift
 			;;
@@ -1354,22 +1354,31 @@ while (("${#}")); do
 			echo
 			echo -e " ${cg}Use:${cend} ${clm}all${cend} ${td}or${cend} ${clm}module-name${cend}          ${cg}Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clm}all${cend} ${clb}-i${cend}"
 			echo
-			echo -e " ${td}${clm}all${cend}         ${td}-${cend} ${td}${cly}optional${cend} ${td}Recommended method to install all modules${cend}"
-			echo -e " ${td}${clm}install${cend}     ${td}-${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qbt_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
-			[[ "${what_id}" =~ ^(alpine)$ ]] && echo -e "${td} ${clm}libexecinfo${cend} ${td}-${cend} ${td}${clr}required${cend} ${td}Build libexecinfo${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
-			echo -e " ${td}${clm}zlib${cend}               ${td}-${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
-			echo -e " ${td}${clm}iconv${cend}              ${td}-${cend} ${td}${clr}required${cend} ${td}Build iconv locally${cend}"
-			echo -e " ${td}${clm}icu${cend}                ${td}-${cend} ${td}${cly}optional${cend} ${td}Build ICU locally${cend}"
-			echo -e " ${td}${clm}openssl${cend}            ${td}-${cend} ${td}${clr}required${cend} ${td}Build openssl locally${cend}"
-			echo -e " ${td}${clm}boost${cend}              ${td}-${cend} ${td}${clr}required${cend} ${td}Download, extract and build the boost library files${cend}"
-			echo -e " ${td}${clm}libtorrent${cend}         ${td}-${cend} ${td}${clr}required${cend} ${td}Build libtorrent locally${cend}"
-			echo -e " ${td}${clm}double conversion${cend}  ${td}-${cend} ${td}${clr}required${cend} ${td}A cmakke + Qt6 build compenent on modern OS only.${cend}"
-			echo -e " ${td}${clm}qtbase${cend}             ${td}-${cend} ${td}${clr}required${cend} ${td}Build qtbase locally${cend}"
-			echo -e " ${td}${clm}qttools${cend}            ${td}-${cend} ${td}${clr}required${cend} ${td}Build qttools locally${cend}"
-			echo -e " ${td}${clm}qbittorrent${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build qbittorrent locally${cend}"
+			echo -e " ${td}${clm}all${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Recommended method to install all modules${cend}"
+			echo -e " ${td}${clm}install${cend} ${td}------------${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qbt_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
+			[[ "${what_id}" =~ ^(alpine)$ ]] && echo -e "${td} ${clm}libexecinfo${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build libexecinfo${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
+			echo -e " ${td}${clm}zlib${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
+			echo -e " ${td}${clm}iconv${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build iconv locally${cend}"
+			echo -e " ${td}${clm}icu${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Build ICU locally${cend}"
+			echo -e " ${td}${clm}openssl${cend} ${td}------------${cend} ${td}${clr}required${cend} ${td}Build openssl locally${cend}"
+			echo -e " ${td}${clm}boost${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Download, extract and build the boost library files${cend}"
+			echo -e " ${td}${clm}libtorrent${cend} ${td}---------${cend} ${td}${clr}required${cend} ${td}Build libtorrent locally${cend}"
+			echo -e " ${td}${clm}double_conversion${cend} ${td}--${cend} ${td}${clr}required${cend} ${td}A cmakke + Qt6 build compenent on modern OS only.${cend}"
+			echo -e " ${td}${clm}qtbase${cend} ${td}-------------${cend} ${td}${clr}required${cend} ${td}Build qtbase locally${cend}"
+			echo -e " ${td}${clm}qttools${cend} ${td}------------${cend} ${td}${clr}required${cend} ${td}Build qttools locally${cend}"
+			echo -e " ${td}${clm}qbittorrent${cend} ${td}--------${cend} ${td}${clr}required${cend} ${td}Build qbittorrent locally${cend}"
+			echo
+			echo -e " ${tb}${tu}env help - supported exportable evironment variables${cend}"
+			echo
+			echo -e " ${td}${clm}export qbt_libtorrent_version=\"\"${cend} ${td}-${cend} ${td}${clr}options${cend} ${td}1.2 2.0${cend}"
+			echo -e " ${td}${clm}export qbt_qt_version=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}5.15 6.3, 6.3 and so on${cend}"
+			echo -e " ${td}${clm}export qbt_build_tool=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}qmake cmake${cend}"
+			echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}aarch64 armv7 armhf${cend}"
+			echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static or usee your full/shorthand github repo${cend}"
+			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - qbt-workflow-files repo - custom tags will override${cend}"
 			echo
 			exit
 			;;
@@ -1522,7 +1531,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
-			echo -e " Always use the master branch for ${cg}libtorrent RC_${libtorrent_version//./_}${cend}"
+			echo -e " Always use the master branch for ${cg}libtorrent RC_${qbt_libtorrent_version//./_}${cend}"
 			echo
 			echo -e " Always use the master branch for ${cg}qBittorrent ${qbittorrent_github_tag/release-/}${cend}"
 			echo
@@ -1554,9 +1563,9 @@ while (("${#}")); do
 			echo
 			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
-			echo -e " Always use the master branch for ${cg}libtorrent-$libtorrent_version${cend}"
+			echo -e " Always use the master branch for ${cg}libtorrent-$qbt_libtorrent_version${cend}"
 			echo
-			echo -e " This master that will be used is: ${cg}RC_${libtorrent_version//./_}${cend}"
+			echo -e " This master that will be used is: ${cg}RC_${qbt_libtorrent_version//./_}${cend}"
 			echo
 			echo -e " ${td}This flag is provided with no arguments.${cend}"
 			echo
