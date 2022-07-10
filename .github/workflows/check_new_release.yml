@@ -50,4 +50,4 @@ jobs:
         with:
           workflow: matrix multi build and release - qbt-workflow-files
           repo: userdocs/qbt_static_test
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MYTOKEN }}
