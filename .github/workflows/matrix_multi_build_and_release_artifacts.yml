@@ -72,21 +72,19 @@ jobs:
       - name: Host - Download all artifact
         uses: actions/download-artifact@v3
 
-      - name: Host - organise libtorrent files
+      - name: Host - organise libtorrent 1_2 files
+        if: matrix.libtorrent_version == '1_2'
         run: |
-
           libtorrent_1_2_github_tag="$(git ls-remote -q -t --refs "https://github.com/arvidn/libtorrent.git" | awk '/\/v1/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
+          mv -f artifact/libtorrent.${libtorrent_1_2_github_tag/v/}.tar.xz artifact/libtorrent.tar.xz
+          rm -f artifact/libtorrent.${libtorrent_2_0_github_tag/v/}.tar.xz
+
+      - name: Host - organise libtorrent 2_0 files
+        if: matrix.libtorrent_version == '2_0'
+        run: |
           libtorrent_2_0_github_tag="$(git ls-remote -q -t --refs "https://github.com/arvidn/libtorrent.git" | awk '/\/v2/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
-
-          if [[ "${{ matrix.libtorrent_version }}" =~ ^1\.2 ]]; then
-              mv -f artifact/libtorrent.${libtorrent_1_2_github_tag/v/}.tar.xz artifact/libtorrent.tar.xz
-              rm -f artifact/libtorrent.${libtorrent_2_0_github_tag/v/}.tar.xz
-          fi
-
-          if [[ "${{ matrix.libtorrent_version }}" =~ ^2\.0 ]]; then
-              mv -f artifact/libtorrent.${libtorrent_2_0_github_tag/v/}.tar.xz artifact/libtorrent.tar.xz
-              rm -f artifact/libtorrent.${libtorrent_1_2_github_tag/v/}.tar.xz
-          fi
+          mv -f artifact/libtorrent.${libtorrent_2_0_github_tag/v/}.tar.xz artifact/libtorrent.tar.xz
+          rm -f artifact/libtorrent.${libtorrent_1_2_github_tag/v/}.tar.xz
 
       - name: Host - organise qt files
         run: |
