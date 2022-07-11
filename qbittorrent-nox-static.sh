@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 #
+
+set -x
+
 # Copyright 2020 by userdocs and contributors
 #
 # SPDX-License-Identifier: Apache-2.0
