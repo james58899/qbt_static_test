@@ -96,10 +96,10 @@ set_default_values() {
 	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}" # Set this here so it is easy to see and change
 
 	if [[ "${qbt_build_tool}" == 'cmake' ]]; then
-		qbt_qt_version=${qbt_qt_version:-6.3}                                      # Set this here so it is easy to see and change. PATCH versions are detected automatically - for example, 5.15.4 will be used over 5.15.0
+		qbt_qt_version=${qbt_qt_version:-6}                                        # Set this here so it is easy to see and change. PATCH versions are detected automatically - for example, 5.15.4 will be used over 5.15.0
 		[[ "${qbt_qt_version}" =~ ^6\. ]] && qbt_use_qt6="ON" || qbt_use_qt6="OFF" # this automatically toggles the use of QT6 with qbittorrent and cmake
 	else
-		qbt_qt_version=${qbt_qt_version:-5.15}
+		qbt_qt_version=${qbt_qt_version:-5}
 	fi
 
 	qbt_python_version="3" # We are only using python3 but it's easier to just change this if we need to.
@@ -536,7 +536,7 @@ set_module_urls() {
 
 	# we use a list since we can change the version to 6.0,6.1,6.2 and so on instead of being stuck with on the latest, i.e. 6.3
 	qt_github_tag_list="$(git_git ls-remote -q -t --refs https://github.com/qt/qtbase.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-a|-b|-r)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
-	qt_version="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
+	qt_version="$(grep -Em1 "v${qbt_qt_version}" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
 
 	qt5_version="$(grep -Em1 "v5" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
 	qt6_version="$(grep -Em1 "v6" <<< "${qt_github_tag_list}")"
