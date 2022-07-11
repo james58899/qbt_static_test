@@ -89,20 +89,16 @@ jobs:
       - name: Host - organise qt5 files
         if: matrix.qbt_qt_version != '6.3'
         run: |
-          if [[ "${{ matrix.qbt_qt_version }}" =~ ^5\. ]]; then
-              mv -f artifact/qt5base.tar.xz artifact/qtbase.tar.xz
-              mv -f artifact/qt5tools.tar.xz artifact/qttools.tar.xz
-              rm -f artifact/qt6base.tar.xz artifact/qt6tools.tar.xz
-          fi
+          mv -f artifact/qt5base.tar.xz artifact/qtbase.tar.xz
+          mv -f artifact/qt5tools.tar.xz artifact/qttools.tar.xz
+          rm -f artifact/qt6base.tar.xz artifact/qt6tools.tar.xz
 
       - name: Host - organise qt6 files
         if: matrix.qbt_qt_version == '6.3'
         run: |
-          if [[ "${{ matrix.qbt_qt_version }}" =~ ^6\. ]]; then
-              mv -f artifact/qt6base.tar.xz artifact/qtbase.tar.xz
-              mv -f artifact/qt6tools.tar.xz artifact/qttools.tar.xz
-              rm -f artifact/qt5base.tar.xz artifact/qt5tools.tar.xz
-          fi
+          mv -f artifact/qt6base.tar.xz artifact/qtbase.tar.xz
+          mv -f artifact/qt6tools.tar.xz artifact/qttools.tar.xz
+          rm -f artifact/qt5base.tar.xz artifact/qt5tools.tar.xz
 
       - name: Host - Move organised artifacts to ${{ env.build_dir }}
         run: mv -f artifact/* ${{ env.build_dir }}
