@@ -35,7 +35,7 @@ jobs:
           padding="           "
 
           for iray in "${!current_github_tag_array[@]}"; do
-            if [[ "${current_github_tag_array[iray]//\./}" -gt "${current_build_version[iray]//\./}" ]]; then
+            if [[ "${current_github_tag_array[$iray]//\./}" -gt "${current_build_version[$iray]//\./}" ]]; then
               printf '%s latest : %s current : %s %s\n' "$iray ${padding:${#iray}}" "${current_github_tag_array[$iray]} ${padding:${#current_github_tag_array[$iray]}}" "${current_build_version[$iray]} ${padding:${#current_build_version[$iray]}}" "<<< New version released - workflow will be triggered"
             else
               printf '%s latest : %s current : %s\n' "$iray ${padding:${#iray}}" "${current_github_tag_array[$iray]} ${padding:${#current_github_tag_array[$iray]}}" "${current_build_version[$iray]} ${padding:${#current_build_version[$iray]}}"
