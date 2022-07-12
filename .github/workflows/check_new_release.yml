@@ -3,8 +3,6 @@ name: check for new releases
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */3 * * *"
 
 jobs:
   check_release:
@@ -36,7 +34,7 @@ jobs:
 
           for iray in "${!current_github_tag_array[@]}"; do
             if [[ "${current_github_tag_array[$iray]//\./}" -gt "${current_build_version[$iray]//\./}" ]]; then
-              printf '%s latest : %s current : %s %s\n' "$iray ${padding:${#iray}}" "${current_github_tag_array[$iray]} ${padding:${#current_github_tag_array[$iray]}}" "${current_build_version[$iray]} ${padding:${#current_build_version[$iray]}}" "<<< New version released - workflow will be triggered"
+              printf '%s latest : %s qbt-static-current : %s %s\n' "$iray ${padding:${#iray}}" "${current_github_tag_array[$iray]} ${padding:${#current_github_tag_array[$iray]}}" "${current_build_version[$iray]} ${padding:${#current_build_version[$iray]}}" "< New version available - workflow will be triggered"
             else
               printf '%s latest : %s qbt-static-current : %s\n' "$iray ${padding:${#iray}}" "${current_github_tag_array[$iray]} ${padding:${#current_github_tag_array[$iray]}}" "${current_build_version[$iray]} ${padding:${#current_build_version[$iray]}}"
             fi
@@ -47,5 +45,5 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: matrix multi build and release - qbt-workflow-files
-          repo: userdocs/qbittorrent-nox-static
+          repo: userdocs/qbt_static_test
           token: ${{ secrets.MYTOKEN }}
