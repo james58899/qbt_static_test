@@ -4,7 +4,7 @@ name: matrix multi build and release - qbt-workflow-files
 on:
   workflow_dispatch:
     inputs:
-      distinct_id: "12345"
+      distinct_id:
 
 jobs:
   build:
