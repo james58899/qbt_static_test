@@ -1089,7 +1089,7 @@ _release_info() {
 		| Components  |              Version               |
 		| :---------: | :--------------------------------: |
 		| Qbittorrent | ${qbittorrent_github_tag#release-} |
-		|     Qt5     | ${qt5_version#v}:${qt6_version#v}  |
+		|     Qt5     |          ${qt5_version#v}          |
 		|     Qt6     |          ${qt6_version#v}          |
 		| Libtorrent  |     ${libtorrent_github_tag#v}     |
 		|    Boost    |         ${boost_version#v}         |
