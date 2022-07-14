@@ -1083,18 +1083,28 @@ _release_info() {
 		qbittorrent ${qbittorrent_github_tag#release-} libtorrent ${libtorrent_github_tag#v}
 	TITLE_INFO
 
+	md_1="${qbittorrent_github_tag#release-}"
+	md_2="${qt5_version#v}"
+	md_3="${qt6_version#v}"
+	md_4="${libtorrent_github_tag#v}"
+	md_5="${boost_version#v}"
+	md_6="${openssl_version}"
+	md_7="${zlib_version%.*}"
+
 	cat > "${release_info_dir}/release.md" <<- RELEASE_INFO
 		## Build info
 
-		| Components  |              Version               |
-		| :---------: | :--------------------------------: |
-		| Qbittorrent | ${qbittorrent_github_tag#release-} |
-		|     Qt5     |          ${qt5_version#v}          |
-		|     Qt6     |          ${qt6_version#v}          |
-		| Libtorrent  |     ${libtorrent_github_tag#v}     |
-		|    Boost    |         ${boost_version#v}         |
-		|   OpenSSL   |         ${openssl_version}         |
-		|   zlib-ng   |         ${zlib_version%.*}         |
+		"${md_1}${md_2}${md_3}${md_4}${md_5}${md_6}"${md_7}"
+
+		| Components  | Version |
+		| :---------: | :-----: |
+		| Qbittorrent | ${md_1} |
+		|     Qt5     | ${md_2} |
+		|     Qt6     | ${md_3} |
+		| Libtorrent  | ${md_4} |
+		|    Boost    | ${md_5} |
+		|   OpenSSL   | ${md_6} |
+		|   zlib-ng   | ${md_6} |
 
 		## Architectures and build info
 
@@ -1116,6 +1126,10 @@ _release_info() {
 		ℹ️ [Check the build table for more info](https://github.com/userdocs/qbittorrent-nox-static#build-table---dependencies---arch---os---build-tools)
 
 		⚠️ Binary builds are not stripped by default to preserve debugging with gdb.
+
+		## Workflow version tag
+
+		"\`${md_1}:${md_2}:${md_3}:${md_4}:${md_5}:${md_6}:${md_7}\`"
 
 	RELEASE_INFO
 
