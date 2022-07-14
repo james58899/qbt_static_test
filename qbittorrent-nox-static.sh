@@ -1083,8 +1083,6 @@ _release_info() {
 		qbittorrent ${qbittorrent_github_tag#release-} libtorrent ${libtorrent_github_tag#v}
 	TITLE_INFO
 
-	${qbittorrent_github_tag#release-}:${qt5_version#v}:${qt6_version#v}:${libtorrent_github_tag#v}:${boost_version#v}:${openssl_version}:${zlib_version%.*}
-
 	cat > "${release_info_dir}/release.md" <<- RELEASE_INFO
 		## Build info
 
@@ -1124,7 +1122,7 @@ _release_info() {
 		current_build_version[qbittorrent]="${qbittorrent_github_tag#release-}"
 		current_build_version[qt5]="${qt5_version#v}:${qt6_version#v}"
 		current_build_version[qt6]="${qt6_version#v}"
-		current_build_version[libtorrent]="${libtorrent_github_tag#v}"
+		current_build_version[libtorrent_${qbt_libtorrent_version//\./_}]="${libtorrent_github_tag#v}"
 		current_build_version[boost]="${boost_version#v}"
 		current_build_version[openssl]="${openssl_version}"
 		-->
