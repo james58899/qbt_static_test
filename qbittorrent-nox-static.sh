@@ -1088,7 +1088,7 @@ _release_info() {
 			"qbittorrent": "${qbittorrent_github_tag#release-}",
 			"qt5": "${qt5_version#v}",
 			"qt6": "${qt6_version#v}",
-			"libtorrent__${qbt_libtorrent_version//\./_}": "${libtorrent_github_tag#v}",
+			"libtorrent_${qbt_libtorrent_version//\./_}": "${libtorrent_github_tag#v}",
 			"boost": "${boost_version#v}",
 			"openssl": "${openssl_version}"
 		}
