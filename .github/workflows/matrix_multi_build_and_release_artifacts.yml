@@ -2,7 +2,7 @@
 name: matrix multi build and release - artifacts
 
 on:
-  - workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   bootstrap:
@@ -181,18 +181,18 @@ jobs:
       - name: Host- Create release - tag - assets
         uses: ncipollo/release-action@v1.10.0
         with:
-          prerelease: ${{ matrix.preview_release }}
-          artifacts: ${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
+          prerelease: "${{ matrix.preview_release }}"
+          artifacts: "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox,${{ env.build_dir }}/release_info/dependency-version.json"
           replacesArtifacts: true
-          tag: ${{ env.release_tag }}
-          name: ${{ env.release_title }}
-          bodyFile: ${{ env.build_dir }}/release_info/release.md
+          tag: "${{ env.release_tag }}"
+          name: "${{ env.release_title }}"
+          bodyFile: "${{ env.build_dir }}/release_info/release.md"
           allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Archive code coverage results
         if: matrix.build_tool == 'cmake'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.name }}-graphs
-          path: ${{ env.build_dir }}/completed/*.png
+          name: "${{ env.name }}-graphs"
+          path: "${{ env.build_dir }}/completed/*.png"
