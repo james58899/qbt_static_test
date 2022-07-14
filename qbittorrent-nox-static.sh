@@ -1083,6 +1083,17 @@ _release_info() {
 		qbittorrent ${qbittorrent_github_tag#release-} libtorrent ${libtorrent_github_tag#v}
 	TITLE_INFO
 
+	cat > "${release_info_dir}/dependency-version.json" <<- DEPENDENCY_INFO
+		{
+			"qbittorrent": "${qbittorrent_github_tag#release-}",
+			"qt5": "${qt5_version#v}",
+			"qt6": "${qt6_version#v}",
+			"libtorrent__${qbt_libtorrent_version//\./_}": "${libtorrent_github_tag#v}",
+			"boost": "${boost_version#v}",
+			"openssl": "${openssl_version}"
+		}
+	DEPENDENCY_INFO
+
 	cat > "${release_info_dir}/release.md" <<- RELEASE_INFO
 		## Build info
 
