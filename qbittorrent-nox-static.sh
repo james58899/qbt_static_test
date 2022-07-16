@@ -56,13 +56,14 @@ cend="\e[0m"  # [c]olor[end]
 what_id="$(source /etc/os-release && printf "%s" "${ID}")"                             # Get the main platform name, for example: debian, ubuntu or alpine
 what_version_codename="$(source /etc/os-release && printf "%s" "${VERSION_CODENAME}")" # Get the codename for this this OS. Note, Alpine does not have a unique codename.
 what_version_id="$(source /etc/os-release && printf "%s" "${VERSION_ID%_*}")"          # Get the version number for this codename, for example: 10, 20.04, 3.12.4
+[[ "$(wc -w <<< "${what_version_id//\./ }")" -eq "2" ]] && alpline_min_version="310"
 
 if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpine. We check for min v3.10 later with codenames.
 	what_version_codename="alpine"
 fi
 
 ## Check against allowed codenames or if the codename is alpine version greater than 3.10
-if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jammy)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
+if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jammy)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "${alpline_min_version:-3100}" ]]; then
 	echo
 	echo -e " ${cly}This is not a supported OS. There is no reason to continue.${cend}"
 	echo
