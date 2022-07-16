@@ -92,6 +92,7 @@ set_default_values() {
 	qbt_workflow_artifacts="${qbt_workflow_artifacts:-}" # github actions workflows - use the workflow files saved as artifacts instead of downloading per matrix
 
 	qbt_patches_url="${qbt_patches_url:-}" # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
+	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"
 
 	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}" # Set this here so it is easy to see and change
 
@@ -746,10 +747,14 @@ apply_patches() {
 				echo
 				echo -e " ${utick} ${cr}Using downloaded custom Jamfile file${cend}"
 				echo
-			else
+			elif [[ "${qbt_libtorrent_master_jamfile}" == 'yes' ]]; then
 				curl_curl "https://raw.githubusercontent.com/arvidn/libtorrent/${default_jamfile}/Jamfile" -o "${patch_jamfile}"
 				echo
 				echo -e " ${utick} ${cr}Using libtorrent branch master Jamfile file${cend}"
+				echo
+			else
+				echo
+				echo -e " ${utick} ${cr}Using libtorrent ${libtorrent_github_tag} Jamfile file${cend}"
 				echo
 			fi
 		fi
@@ -1404,6 +1409,16 @@ while (("${#}")); do
 			echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}aarch64 armv7 armhf${cend}"
 			echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static or usee your full/shorthand github repo${cend}"
 			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - qbt-workflow-files repo - custom tags will override${cend}"
+			echo
+			echo -e " ${tb}${tu}Currrent settings${cend}"
+			echo
+			echo -e " ${td}${clm}qbt_libtorrent_version=\"${qbt_libtorrent_version}\"${cend} ${td}"
+			echo -e " ${td}${clm}qbt_qt_version=\"${qbt_qt_version}\"${cend} ${td}"
+			echo -e " ${td}${clm}qbt_build_tool=\"${qbt_build_tool}\"${cend} ${td}"
+			echo -e " ${td}${clm}qbt_cross_name=\"${qbt_cross_name}\"${cend} ${td}"
+			echo -e " ${td}${clm}qbt_patches_url=\"${qbt_patches_url}\"${cend} ${td}"
+			echo -e " ${td}${clm}qbt_workflow_files=\"${qbt_workflow_files}\"${cend} ${td}"
+			echo -e " ${td}${clm}qbt_libtorrent_master_jamfile=\"${qbt_libtorrent_master_jamfile}\"${cend} ${td}"
 			echo
 			exit
 			;;
