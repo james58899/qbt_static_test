@@ -19,6 +19,15 @@
 # Script Formatting - https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format
 #
 #################################################################################################################################################
+# Script version = Major minor patch
+#################################################################################################################################################
+script_version_local_array=("1" "0" "1")
+script_version_major="${script_version_local_array[0]}"
+script_versiob_minor="${script_version_local_array[1]}"
+script_versiob_patch="${script_version_local_array[2]}"
+
+script_version_remote_array
+#################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
 set -a
@@ -689,7 +698,7 @@ installation_modules() {
 		echo -e "${tn} ${urc} ${tb}One or more of the provided modules are not supported${cend}"
 		echo -e "${tn} ${uyc} ${tb}Below is a list of supported modules${cend}"
 		echo -e "${tn} ${umc} ${clm}${qbt_modules[*]}${cend}${tn}"
-		echo -e "${uyc} Default env settings${cend}${tn}"
+		echo -e " ${uyc} Default env settings${cend}${tn}"
 		echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
 		echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
 		echo -e " ${cly}qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
