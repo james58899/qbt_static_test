@@ -92,7 +92,7 @@ set_default_values() {
 	qbt_workflow_files="${qbt_workflow_files:-}"         # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/tag/rolling instead of direct downloads from various source locations. Provides and alternative source and does not spam download hosts when building matrix builds.
 	qbt_workflow_artifacts="${qbt_workflow_artifacts:-}" # github actions workflows - use the workflow files saved as artifacts instead of downloading per matrix
 
-	qbt_patches_url="${qbt_patches_url:-}" # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
+	qbt_patches_url="${qbt_patches_url:-userdocs/qbittorrent-nox-static}" # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
 	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"
 
 	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}" # Set this here so it is easy to see and change
@@ -479,7 +479,7 @@ set_module_urls() {
 		libexecinfo_static_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
 	fi
 
-	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/userdocs/cmake-qbittorrent-nox-static.git | awk '{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/userdocs/qbt-cmake-ninja-crossbuilds.git | awk '{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	cmake_debian_version=${cmake_github_tag%_*}
 	ninja_debian_version=${cmake_github_tag#*_}
 
@@ -1158,7 +1158,7 @@ _cmake() {
 
 		if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
 			if [[ "$(cmake --version 2> /dev/null | awk 'NR==1{print $3}')" != "${cmake_debian_version}" ]]; then
-				curl "https://github.com/userdocs/cmake-qbittorrent-nox-static/releases/latest/download/${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" > "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz"
+				curl "https://github.com/userdocs/qbt-cmake-ninja-crossbuilds/releases/latest/download/${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" > "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz"
 				post_command "Debian cmake and ninja installation"
 				tar xf "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" --strip-components=1 -C "${qbt_install_dir}"
 				rm -f "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).deb"
