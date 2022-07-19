@@ -85,24 +85,37 @@ fi
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" && TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 
-	qbt_build_tool="${qbt_build_tool:-}"
+	qbt_build_tool="${qbt_build_tool:-qmake}"
 	qbt_cross_name="${qbt_cross_name:-}"
 	qbt_cross_target="${qbt_cross_target:-${what_id}}"
 	qbt_cmake_debug="${qbt_cmake_debug:-}"
-	qbt_workflow_files="${qbt_workflow_files:-}"         # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/tag/rolling instead of direct downloads from various source locations. Provides and alternative source and does not spam download hosts when building matrix builds.
-	qbt_workflow_artifacts="${qbt_workflow_artifacts:-}" # github actions workflows - use the workflow files saved as artifacts instead of downloading per matrix
-
+	qbt_workflow_files="${qbt_workflow_files:-}"                          # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/tag/rolling instead of direct downloads from various source locations. Provides and alternative source and does not spam download hosts when building matrix builds.
+	qbt_workflow_artifacts="${qbt_workflow_artifacts:-}"                  # github actions workflows - use the workflow files saved as artifacts instead of downloading per matrix
 	qbt_patches_url="${qbt_patches_url:-userdocs/qbittorrent-nox-static}" # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
+	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"               # Set this here so it is easy to see and change
 	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"
 
-	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}" # Set this here so it is easy to see and change
+	case "${qbt_qt_version}" in
+		5)
+			if [[ "${qbt_build_tool}" != 'cmake' ]]; then
+				qbt_build_tool="qmake"
+				qbt_use_qt6="OFF"
+			fi
+			;;&
+		6)
+			qbt_build_tool="cmake"
+			qbt_use_qt6="ON"
+			;;&
+		"")
+			[[ "${qbt_build_tool}" == 'cmake' ]] && qbt_qt_version="6" || qbt_qt_version="5"
+			;;&
+		*)
+			[[ ! "${qbt_qt_version}" =~ ^(5|6)$ ]] && qbt_workflow_files=no
+			[[ "${qbt_build_tool}" == 'qmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_build_tool="cmake"
+			[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^5 ]] && qbt_build_tool="cmake" qbt_qt_version="6"
+			;;
 
-	if [[ "${qbt_build_tool}" == 'cmake' ]]; then
-		qbt_qt_version=${qbt_qt_version:-6}                                      # Set this here so it is easy to see and change. PATCH versions are detected automatically - for example, 5.15.4 will be used over 5.15.0
-		[[ "${qbt_qt_version}" =~ ^6 ]] && qbt_use_qt6="ON" || qbt_use_qt6="OFF" # this automatically toggles the use of QT6 with qbittorrent and cmake
-	else
-		qbt_qt_version=${qbt_qt_version:-5}
-	fi
+	esac
 
 	qbt_python_version="3" # We are only using python3 but it's easier to just change this if we need to.
 
@@ -675,7 +688,15 @@ installation_modules() {
 	else
 		echo -e "${tn} ${urc} ${tb}One or more of the provided modules are not supported${cend}"
 		echo -e "${tn} ${uyc} ${tb}Below is a list of supported modules${cend}"
-		echo -e "${tn} ${umc} ${clm}${qbt_modules[*]}${tn}${cend}"
+		echo -e "${tn} ${umc} ${clm}${qbt_modules[*]}${cend}${tn}"
+		echo -e "${uyc} Default env settings${cend}${tn}"
+		echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
+		echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
+		echo -e " ${cly}qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
+		echo -e " ${cly}qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
+		echo -e " ${cly}qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
+		echo -e " ${cly}qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
+		echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}${tn}"
 		exit
 	fi
 }
