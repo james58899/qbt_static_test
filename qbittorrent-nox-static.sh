@@ -21,12 +21,8 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version_local_array=("1" "0" "1")
-script_version_major="${script_version_local_array[0]}"
-script_versiob_minor="${script_version_local_array[1]}"
-script_versiob_patch="${script_version_local_array[2]}"
-
-script_version_remote_array
+declare -A script_version_local_array
+script_version_local_array=([major]="1" [minor]="0" [patch]="1")
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
