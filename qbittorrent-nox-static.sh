@@ -462,7 +462,7 @@ set_build_directory() {
 custom_flags_set() {
 	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
 	CPPFLAGS="${optimize/*/$optimize }-static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
-	LDFLAGS="${optimize/*/$optimize }-static  -L${lib_dir} -pthread"
+	LDFLAGS="${optimize/*/$optimize }-static -L${lib_dir} -pthread"
 }
 
 custom_flags_reset() {
