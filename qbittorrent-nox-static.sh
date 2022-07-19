@@ -462,7 +462,7 @@ set_build_directory() {
 custom_flags_set() {
 	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
 	CPPFLAGS="${optimize/*/$optimize }-static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
-	LDFLAGS="${optimize/*/$optimize }-static -L${lib_dir}"
+	LDFLAGS="${optimize/*/$optimize }-static  -L${lib_dir} -pthread"
 }
 
 custom_flags_reset() {
@@ -728,12 +728,12 @@ apply_patches() {
 
 		if [[ -f "${patch_file}" ]]; then
 			echo
-			echo -e " ${utick}${cr} Using ${!patch_tag} existing patch file${cend}"
+			echo -e " ${utick}${cr} Using ${!patch_tag} existing patch file${cend} - ${patch_file}"
 			[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 		else
 			if curl_curl "${patch_file_url}" -o "${patch_file}"; then
 				echo
-				echo -e " ${utick} ${cr}Using ${!patch_tag} downloaded patch file${cend}"
+				echo -e " ${utick} ${cr}Using ${!patch_tag} downloaded patch file${cend} - ${patch_file_url}"
 				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
 		fi
@@ -787,7 +787,7 @@ download_file() {
 			echo -e "${tn} ${uplus}${cg} Using $1 artifact ${cly}${file_name}${cend}${tn}"
 		else
 			file_name="${qbt_install_dir}/${1}.t${2##*.t}"
-			echo -e "${tn} ${uplus}${cg} Installing ${1} - ${cly}${2}${cend}${tn}"
+			echo -e "${tn} ${uplus}${cg} Installing ${1}${cend} - ${cly}${2}${cend}${tn}"
 			[[ -f "${file_name}" ]] && rm -rf {"${qbt_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
 			curl "${2}" -o "${file_name}"
 		fi
@@ -816,7 +816,7 @@ download_folder() {
 		github_tag="${1}_github_tag"
 		url_github="${2}"
 		[[ -n "${3}" ]] && subdir="/${3}" || subdir=""
-		echo -e "${tn} ${uplus}${cg} Installing ${1} - ${cly}${2}${cend} using tag${cly} ${!github_tag}${cend}${tn}"
+		echo -e "${tn} ${uplus}${cg} Installing ${1}${cend} - ${cly}${2}${cend} using tag${cly} ${!github_tag}${cend}${tn}"
 		folder_name="${qbt_install_dir}/${1}"
 		folder_inc="${qbt_install_dir}/include/${1}"
 		[[ -d "${folder_name}" ]] && rm -rf "${folder_name}"
