@@ -19,10 +19,6 @@
 # Script Formatting - https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format
 #
 #################################################################################################################################################
-# Script version = Major minor patch
-#################################################################################################################################################
-script_version="1.0.1"
-#################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
 set -a
@@ -54,6 +50,19 @@ ugrc="\e[37m\U25cf\e[0m" && ulgrcc="\e[97m\U25cf\e[0m" # [u]nicode[gr]ey[c]ircle
 
 cdef="\e[39m" # [c]olor[def]ault
 cend="\e[0m"  # [c]olor[end]
+#################################################################################################################################################
+# Script version = Major minor patch
+#################################################################################################################################################
+script_version="1.0.0"
+script_url="https://raw.githubusercontent.com/userdocs/qbt_static_test/main/qbittorrent-nox-static.sh"
+script_version_remote="$(curl -sL "${script_url}" | sed -rn 's|script_version="(.*)"|\1|p')"
+
+if [[ ${script_version//\./} -lt "${script_version_remote//\./}" ]]; then
+	echo -e "${tn} ${uyc} ${clr}Script update available!${cend}"
+	echo -e "${tn} ${uyc} Script version: ${clc}${script_version}${cend} to ${clc}${script_version_remote}${cend}"
+else
+	echo -e "${tn} ${uyc} Script version: ${script_version}"
+fi
 #######################################################################################################################################################
 # Check we are on a supported OS and release.
 #######################################################################################################################################################
