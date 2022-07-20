@@ -53,13 +53,14 @@ cend="\e[0m"  # [c]olor[end]
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="1.0.0"
+script_version="1.0.1"
 script_url="https://raw.githubusercontent.com/userdocs/qbt_static_test/main/qbittorrent-nox-static.sh"
-script_version_remote="$(curl -sL "${script_url}" | sed -rn 's|script_version="(.*)"|\1|p')"
+script_version_remote="$(curl -sL "${script_url}" | sed -rn 's|^script_version="(.*)"$|\1|p')"
 
 if [[ ${script_version//\./} -lt "${script_version_remote//\./}" ]]; then
 	echo -e "${tn} ${uyc} ${clr}Script update available!${cend}"
 	echo -e "${tn} ${uyc} Script version: ${clc}${script_version}${cend} to ${clc}${script_version_remote}${cend}"
+	echo -e "${tn} ${uyc} wget -qO ~/qbittorrent-nox-static.sh https://git.io/qbstatic${cend}"
 else
 	echo -e "${tn} ${uyc} Script version: ${script_version}"
 fi
