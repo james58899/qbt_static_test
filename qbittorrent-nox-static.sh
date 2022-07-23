@@ -143,7 +143,7 @@ set_default_values() {
 
 	if [[ "${what_id}" =~ ^(alpine)$ ]]; then # if Alpine then delete modules we don't use and set the required packages array
 		delete+=("bison" "gawk" "glibc")
-		qbt_required_pkgs=("bash" "bash-completion" "build-base" "coreutils" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "py${qbt_python_version}-numpy" "py${qbt_python_version}-numpy-dev" "linux-headers" "ttf-freefont" "graphviz" "cmake" "re2c")
+		qbt_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "py${qbt_python_version}-numpy" "py${qbt_python_version}-numpy-dev" "linux-headers" "ttf-freefont" "graphviz" "cmake" "re2c")
 	fi
 
 	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based then set the required packages array
@@ -168,8 +168,8 @@ set_default_values() {
 		[[ "${qbt_skip_icu}" != 'no' ]] && delete+=("icu")
 	fi
 
-	qbt_working_dir="$(printf "%s" "$(pwd <(dirname "${0}"))")" # Get the full path to the scripts location to use with setting some path related variables.
-	qbt_working_dir_short="${qbt_working_dir/$HOME/\~}"         # Used with echos. Use the qbt_working_dir variable but the $HOME path is replaced with a literal ~
+	qbt_working_dir="$(pwd)"                            # Set the working dir to our current location and all things well be relative to this location.
+	qbt_working_dir_short="${qbt_working_dir/$HOME/\~}" # Used with echos. Use the qbt_working_dir variable but the $HOME path is replaced with a literal ~
 
 	qbt_install_dir="${qbt_working_dir}/qbt-build"      # Install relative to the script location.
 	qbt_install_dir_short="${qbt_install_dir/$HOME/\~}" # Used with echos. Use the qbt_install_dir variable but the $HOME path is replaced with a literal ~
@@ -180,7 +180,7 @@ set_default_values() {
 # This function will check for a list of defined dependencies from the qbt_required_pkgs array. Apps like python3-dev are dynamically set
 #######################################################################################################################################################
 check_dependencies() {
-	echo -e "${tn} ${ulbc} ${tb}Checking if required core dependencies are installed${cend}${tn}"
+	echo -e "${tn} ${ulbc}${tb} Checking if required core dependencies are installed${cend}${tn}"
 
 	## remove packages in the delete_pkgs from the qbt_required_pkgs array
 	for target in "${delete_pkgs[@]}"; do
@@ -202,11 +202,11 @@ check_dependencies() {
 		fi
 
 		if pkgman > /dev/null 2>&1; then
-			echo -e " Dependency ${utick} ${pkg}"
+			echo -e " ${utick} ${pkg}"
 		else
 			if [[ -n "${pkg}" ]]; then
 				deps_installed='no'
-				echo -e " Dependency ${ucross} ${pkg}"
+				echo -e " ${ucross} ${pkg}"
 				qbt_checked_required_pkgs+=("$pkg")
 			fi
 		fi
@@ -214,7 +214,7 @@ check_dependencies() {
 
 	if [[ "${deps_installed}" == 'no' ]]; then # Check if user is able to install the dependencies, if yes then do so, if no then exit.
 		if [[ "$(id -un)" == 'root' ]]; then
-			echo -e "${tn} ${uplus} ${cg}Updating${cend}${tn}"
+			echo -e "${tn} ${uplus}${cg} Updating${cend}${tn}"
 
 			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 				apk update --repository="${CDN_URL}"
@@ -233,7 +233,7 @@ check_dependencies() {
 				exit
 			}
 
-			echo -e "${tn} ${uplus} ${cg}Installing required dependencies${cend}${tn}"
+			echo -e "${tn} ${uplus}${cg} Installing required dependencies${cend}${tn}"
 
 			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 				if ! apk add "${qbt_checked_required_pkgs[@]}" --repository="${CDN_URL}"; then
@@ -249,18 +249,18 @@ check_dependencies() {
 				fi
 			fi
 
-			echo -e "${tn} ${utick} ${cg}Dependencies installed!${cend}"
+			echo -e "${tn} ${utick}${cg} Dependencies installed!${cend}"
 
 			deps_installed='yes'
 		else
 			echo -e "${tn}${tb} Please request or install the missing core dependencies before using this script${cend}"
 
 			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-				echo -e "${tn} ${clr}apk add${cend} ${qbt_checked_required_pkgs[*]}${tn}"
+				echo -e "${tn}${clr} apk add${cend} ${qbt_checked_required_pkgs[*]}${tn}"
 			fi
 
 			if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
-				echo -e "${tn} ${clr}apt-get install -y${cend} ${qbt_checked_required_pkgs[*]}${tn}"
+				echo -e "${tn}${clr} apt-get install -y${cend} ${qbt_checked_required_pkgs[*]}${tn}"
 			fi
 
 			exit
@@ -446,7 +446,7 @@ git() {
 
 test_git_ouput() {
 	if [[ "${1}" == 'error_tag' ]]; then
-		echo -e "${tn} ${cy}Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
+		echo -e "${tn}${cy} Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
 	fi
 }
 #######################################################################################################################################################
@@ -694,17 +694,17 @@ _installation_modules() {
 		## Some basic help
 		echo -e "${tn} ${uyc}${tb} Script help${cend} : ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-h${cend}"
 	else
-		echo -e "${tn} ${tbk}${urc}${bkend} ${tb}One or more of the provided modules are not supported${cend}"
-		echo -e "${tn} ${uyc} ${tb}Below is a list of supported modules${cend}"
-		echo -e "${tn} ${umc} ${clm}${qbt_modules[*]}${cend}${tn}"
+		echo -e "${tn} ${tbk}${urc}${bkend}${tb} One or more of the provided modules are not supported${cend}"
+		echo -e "${tn} ${uyc}${tb} Below is a list of supported modules${cend}"
+		echo -e "${tn} ${umc}${clm} ${qbt_modules[*]}${cend}${tn}"
 		echo -e " ${uyc} Default env settings${cend}${tn}"
-		echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
-		echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
-		echo -e " ${cly}qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
-		echo -e " ${cly}qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
-		echo -e " ${cly}qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
-		echo -e " ${cly}qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
-		echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}${tn}"
+		echo -e " ${cly}  qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}${tn}"
 		exit
 	fi
 }
@@ -738,13 +738,13 @@ apply_patches() {
 		mkdir -p "${qbt_install_dir}/patches/libtorrent/${libtorrent_patch_tag}"
 		mkdir -p "${qbt_install_dir}/patches/qbittorrent/${qbittorrent_patch_tag}"
 		echo
-		echo -e " ${cly}Using the defaults, these directories have been created:${cend}"
+		echo -e " ${uyc} Using the defaults, these directories have been created:${cend}"
 		echo
-		echo -e " ${clc}$qbt_install_dir_short/patches/libtorrent/${libtorrent_patch_tag}${cend}"
+		echo -e " ${clc}  $qbt_install_dir_short/patches/libtorrent/${libtorrent_patch_tag}${cend}"
 		echo
-		echo -e " ${clc}$qbt_install_dir_short/patches/qbittorrent/${qbittorrent_patch_tag}${cend}"
+		echo -e " ${clc}  $qbt_install_dir_short/patches/qbittorrent/${qbittorrent_patch_tag}${cend}"
 		echo
-		echo -e " If a patch file, named ${cg}patch${cend} is found in these directories it will be applied to the relevant module with a matching tag."
+		echo -e " ${ucc} If a patch file, named ${clc}patch${cend} is found in these directories it will be applied to the relevant module with a matching tag."
 	else
 		patch_tag="${patch_app_name}_patch_tag"
 		patch_dir="${qbt_install_dir}/patches/${patch_app_name}/${!patch_tag}"
@@ -762,7 +762,7 @@ apply_patches() {
 		else
 			if curl_curl "${patch_file_url}" -o "${patch_file}"; then
 				echo
-				echo -e " ${utick} ${cr}Using ${!patch_tag} downloaded patch file${cend} - ${patch_file_url}"
+				echo -e " ${utick}${cr} Using ${!patch_tag} downloaded patch file${cend} - ${patch_file_url}"
 				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
 		fi
@@ -771,20 +771,20 @@ apply_patches() {
 			if [[ -f "${patch_dir}/Jamfile" ]]; then
 				cp -f "${patch_dir}/Jamfile" "${patch_jamfile}"
 				echo
-				echo -e " ${utick} ${cr}Using existing custom Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using existing custom Jamfile file${cend}"
 				echo
 			elif curl_curl "${patch_jamfile_url}" -o "${patch_jamfile}"; then
 				echo
-				echo -e " ${utick} ${cr}Using downloaded custom Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using downloaded custom Jamfile file${cend}"
 				echo
 			elif [[ "${qbt_libtorrent_master_jamfile}" == 'yes' ]]; then
 				curl_curl "https://raw.githubusercontent.com/arvidn/libtorrent/${default_jamfile}/Jamfile" -o "${patch_jamfile}"
 				echo
-				echo -e " ${utick} ${cr}Using libtorrent branch master Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using libtorrent branch master Jamfile file${cend}"
 				echo
 			else
 				echo
-				echo -e " ${utick} ${cr}Using libtorrent ${libtorrent_github_tag} Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using libtorrent ${libtorrent_github_tag} Jamfile file${cend}"
 				echo
 			fi
 		fi
@@ -934,7 +934,7 @@ install_qbittorrent() {
 		[[ "$(id -un)" == 'root' ]] && echo -e " ${cg}qbittorrent-nox${cend}${tn}" || echo -e " ${cg}~/bin/qbittorrent-nox${cend}${tn}"
 		exit
 	else
-		echo -e "${tn}qbittorrent-nox has not been built to the defined install directory:${tn}"
+		echo -e "${tn} ${ucross} qbittorrent-nox has not been built to the defined install directory:${tn}"
 		echo -e "${cg}${qbt_install_dir_short}/completed${cend}${tn}"
 		echo -e "Please build it using the script first then install${tn}"
 		exit
@@ -956,7 +956,7 @@ post_command() {
 	outcome="${PIPESTATUS[0]}"
 	[[ -n "${1}" ]] && command_type="${1}"
 	if [[ ${outcome} -gt '0' ]]; then
-		echo -e "${tn} ${urc} ${clr}Error: The ${command_type} command produced an exit code greater than 0 - Check the logs${cend}${tn}"
+		echo -e "${tn} ${urc}${clr} Error: The ${command_type} command produced an exit code greater than 0 - Check the logs${cend}${tn}"
 		exit "${outcome}"
 	fi
 }
@@ -1104,7 +1104,7 @@ _multi_arch() {
 _release_info() {
 	_error_tag
 
-	echo -e "${tn} ${ugc} ${cly}Release boot-strapped${cend}"
+	echo -e "${tn} ${ugc}${cly} Release boot-strapped${cend}"
 
 	release_info_dir="${qbt_install_dir}/release_info"
 
@@ -1755,7 +1755,7 @@ while (("${#}")); do
 			break
 			;;
 		-*) # unsupported flags
-			echo -e "${tn}Error: Unsupported flag ${cr}$1${cend} - use ${cg}-h${cend} or ${cg}--help${cend} to see the valid options${tn}" >&2
+			echo -e "${tn} Error: Unsupported flag ${cr}$1${cend} - use ${cg}-h${cend} or ${cg}--help${cend} to see the valid options${tn}" >&2
 			exit 1
 			;;
 		*) # preserve positional arguments
@@ -2039,7 +2039,7 @@ application_name libtorrent
 #
 if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	if [[ ! -d "${qbt_install_dir}/boost" ]]; then
-		echo -e "${tn} ${urc} ${clr}Warning${cend} This module depends on the boost module. Use them together: ${clm}boost libtorrent${cend}"
+		echo -e "${tn} ${urc}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost libtorrent${cend}"
 	else
 		custom_flags_set
 
@@ -2302,7 +2302,7 @@ application_name qbittorrent
 
 if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	if [[ ! -d "${qbt_install_dir}/boost" ]]; then
-		echo -e "${tn} ${urc} ${clr}Warning${cend} This module depends on the boost module. Use them together: ${clm}boost qbittorrent${cend}"
+		echo -e "${tn} ${urc}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost qbittorrent${cend}"
 		echo
 	else
 		custom_flags_set
