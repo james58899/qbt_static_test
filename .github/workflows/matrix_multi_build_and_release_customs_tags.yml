@@ -15,7 +15,7 @@ jobs:
         arch_type: [x86_64, armhf, armv7, aarch64]
         libtorrent_version: ["1.2", "2.0"]
         build_tool: ["", cmake]
-        qbittorrent_tag: ["-qt release-4.4.3.1"]
+        qbittorrent_tag: ["-qt master"]
         include:
           - build_tool: ""
             qbt_qt_version_name: "qt5-"
@@ -26,11 +26,11 @@ jobs:
             qbt_qt_version: "6"
 
           - libtorrent_version: "2.0"
-            libtorrent_tag: -lt v2.0.6
+            libtorrent_tag: -lt v2.0.7
             preview_release: false
 
           - libtorrent_version: "1.2"
-            libtorrent_tag: -lt v1.2.16
+            libtorrent_tag: -lt v1.2.17
             preview_release: true
 
     name: "${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.libtorrent_version }}"
