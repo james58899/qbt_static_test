@@ -14,10 +14,10 @@ jobs:
         os_version_id: [edge]
         arch_type: [x86_64, armhf, armv7, aarch64]
         libtorrent_version: ["1.2", "2.0"]
-        build_tool: ["", cmake]
+        build_tool: ["qmake", cmake]
         qbittorrent_tag: ["-qt master"]
         include:
-          - build_tool: ""
+          - build_tool: "qmake"
             qbt_qt_version_name: "qt5-"
             qbt_qt_version: "5"
 
