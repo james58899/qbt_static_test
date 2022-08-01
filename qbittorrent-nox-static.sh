@@ -729,6 +729,7 @@ apply_patches() {
 		default_jamfile="RC_${default_jamfile%_*}"
 	fi
 
+	openssl_patch_tag="${openssl_version}"
 	qbittorrent_patch_tag="${qbittorrent_github_tag#release-}" # qbittorrent has a consistent tag format of release-4.3.1.
 
 	if [[ "${patch_app_name}" == 'bootstrap-help' ]]; then # All the core variables we need for the help command are set so we can exit this function now.
@@ -1932,17 +1933,17 @@ application_name iconv
 if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 	custom_flags_reset
 	download_file "${app_name}" "${!app_url}"
-	#
+
 	./configure "${multi_iconv[@]}" --prefix="${qbt_install_dir}" --disable-shared --enable-static CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	make -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	_fix_static_links "${app_name}"
-	#
+
 	post_command build
-	#
+
 	delete_function "${app_name}"
 else
 	application_skip
@@ -1951,11 +1952,11 @@ fi
 # ICU installation
 #######################################################################################################################################################
 application_name icu
-#
+
 if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 	custom_flags_reset
 	download_file "${app_name}" "${!app_url}" "/source"
-	#
+
 	if [[ "${qbt_cross_name}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
 		mkdir -p "${qbt_install_dir}/${app_name}/cross"
 		_cd "${qbt_install_dir}/${app_name}/cross"
@@ -1963,17 +1964,17 @@ if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 		make -j"$(nproc)"
 		_cd "${qbt_install_dir}/${app_name}/source"
 	fi
-	#
+
 	./configure "${multi_icu[@]}" --prefix="${qbt_install_dir}" --disable-shared --enable-static --disable-samples --disable-tests --with-data-packaging=static CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	make -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	post_command build
-	#
+
 	make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	_fix_static_links "${app_name}"
-	#
+
 	delete_function "${app_name}"
 else
 	application_skip
@@ -1986,16 +1987,18 @@ application_name openssl
 if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
-	#
+
+	apply_patches "${app_name}"
+
 	"${multi_openssl[@]}" --prefix="${qbt_install_dir}" --libdir="${lib_dir}" --openssldir="/etc/ssl" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qbt_install_dir}/logs/${app_name}.log"
 	make -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	post_command build
-	#
+
 	make install_sw |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
-	#
+
 	_fix_static_links "${app_name}"
-	#
+
 	delete_function "${app_name}"
 else
 	application_skip
