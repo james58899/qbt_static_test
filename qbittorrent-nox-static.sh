@@ -2288,6 +2288,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 				-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
 				-D CMAKE_BUILD_TYPE="release" \
 				-D QT6="${qbt_use_qt6}" \
+				-D STACKTRACE="OFF" \
 				-D CMAKE_CXX_STANDARD="${standard}" \
 				-D CMAKE_PREFIX_PATH="${qbt_install_dir};${qbt_install_dir}/boost" \
 				-D Boost_NO_BOOST_CMAKE=TRUE \
