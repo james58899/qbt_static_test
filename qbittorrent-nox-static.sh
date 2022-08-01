@@ -129,7 +129,7 @@ set_default_values() {
 
 	CDN_URL="http://dl-cdn.alpinelinux.org/alpine/edge/main" # for alpine
 
-	qbt_modules=("all" "install" "libexecinfo" "bison" "gawk" "glibc" "zlib" "iconv" "icu" "openssl" "boost" "libtorrent" "double_conversion" "qtbase" "qttools" "qbittorrent") # Define our list of available modules in an array.
+	qbt_modules=("all" "install" "bison" "gawk" "glibc" "zlib" "iconv" "icu" "openssl" "boost" "libtorrent" "double_conversion" "qtbase" "qttools" "qbittorrent") # Define our list of available modules in an array.
 
 	delete=() # Create this array empty. Modules listed in or added to this array will be removed from the default list of modules, changing the behaviour of all or install
 
@@ -148,7 +148,6 @@ set_default_values() {
 	fi
 
 	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based then set the required packages array
-		delete+=("libexecinfo")
 		qbt_required_pkgs=("build-essential" "crossbuild-essential-${cross_arch}" "curl" "pkg-config" "automake" "libtool" "git" "openssl" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "python${qbt_python_version}-numpy" "unzip" "graphviz" "re2c")
 	fi
 
@@ -495,11 +494,6 @@ custom_flags_reset() {
 set_module_urls() {
 	# Update check url
 	script_url="https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/master/qbittorrent-nox-static.sh"
-
-	if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-		libexecinfo_dev_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-dev | awk '{print $1}' | head -n 1).apk"
-		libexecinfo_static_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
-	fi
 
 	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/userdocs/qbt-cmake-ninja-crossbuilds.git | awk '{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	cmake_debian_version=${cmake_github_tag%_*}
@@ -1434,7 +1428,6 @@ while (("${#}")); do
 			echo
 			echo -e " ${td}${clm}all${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Recommended method to install all modules${cend}"
 			echo -e " ${td}${clm}install${cend} ${td}------------${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qbt_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
-			[[ "${what_id}" =~ ^(alpine)$ ]] && echo -e "${td} ${clm}libexecinfo${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build libexecinfo${cend}"
 			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
 			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
 			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
@@ -1788,24 +1781,6 @@ _installation_modules "${@}" # see functions
 _cmake
 
 _multi_arch
-#######################################################################################################################################################
-# libexecinfo installation
-#######################################################################################################################################################
-application_name libexecinfo
-
-if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
-	echo -e "${tn} ${uplus}${cg} Installing ${app_name}${cend}"
-
-	curl "${libexecinfo_dev_url}" -o "${qbt_install_dir}/libexecinfo_dev_${cross_arch}.apk"
-	curl "${libexecinfo_static_url}" -o "${qbt_install_dir}/libexecinfo_static_${cross_arch}.apk"
-
-	tar xf "${qbt_install_dir}/libexecinfo_dev_${cross_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
-	tar xf "${qbt_install_dir}/libexecinfo_static_${cross_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
-
-	_fix_static_links "${app_name}"
-else
-	application_skip
-fi
 #######################################################################################################################################################
 # bison installation
 #######################################################################################################################################################
@@ -2179,10 +2154,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 			;;
 	esac
 
-	if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-		libexecinfo="${lib_dir}/libexecinfo.a"
-	fi
-
 	if [[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${libtorrent_github_tag}"
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${qt6_version}/dep-graph.dot" -G Ninja -B build \
@@ -2197,7 +2168,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
 			-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
 			-D BUILD_SHARED_LIBS=OFF \
-			-D CMAKE_CXX_STANDARD_LIBRARIES="${libexecinfo}" \
 			-D CMAKE_SKIP_RPATH=on -D CMAKE_SKIP_INSTALL_RPATH=on \
 			-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
 		cmake --build build |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
@@ -2217,9 +2187,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 		# Fix 5.15.4 to build on gcc 11
 		sed '/^#  include <utility>/a #  include <limits>' -i "src/corelib/global/qglobal.h"
 
-		# If Alpine, add the QMAKE_LIBS_EXECINFO path so we can build qtbase with no errors whilst linking against libexecinfo
-		[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "mkspecs/common/linux.conf"
-		#
 		# Don't strip by default by disabling these options. We will set it as off by default and use it with a switch
 		echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "mkspecs/common/linux.conf"
 
@@ -2255,10 +2222,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 
 	download_file "${app_name}" "${!app_url}"
 
-	if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-		libexecinfo="${lib_dir}/libexecinfo.a"
-	fi
-
 	if [[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${libtorrent_github_tag}"
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${qt6_version}/dep-graph.dot" -G Ninja -B build \
@@ -2269,7 +2232,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
 			-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
 			-D BUILD_SHARED_LIBS=OFF \
-			-D CMAKE_CXX_STANDARD_LIBRARIES="${libexecinfo}" \
 			-D CMAKE_SKIP_RPATH=on -D CMAKE_SKIP_INSTALL_RPATH=on \
 			-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
 		cmake --build build |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
@@ -2319,10 +2281,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 
 		apply_patches "${app_name}"
 
-		if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-			libexecinfo="${lib_dir}/libexecinfo.a"
-		fi
-
 		if [[ "${qbt_build_tool}" == 'cmake' ]]; then
 			mkdir -p "${qbt_install_dir}/graphs/${qbittorrent_github_tag}"
 			cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${qbittorrent_github_tag}/dep-graph.dot" -G Ninja -B build \
@@ -2335,7 +2293,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 				-D Boost_NO_BOOST_CMAKE=TRUE \
 				-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
 				-D Iconv_LIBRARY="${lib_dir}/libiconv.a" \
-				-D CMAKE_CXX_STANDARD_LIBRARIES="${libexecinfo}" \
 				-D GUI=OFF \
 				-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
 			cmake --build build |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
