@@ -813,7 +813,11 @@ download_file() {
 		else
 			file_name="${qbt_install_dir}/${1}.t${2##*.t}"
 			echo -e "${tn} ${uplus}${cg} Installing ${1}${cend} - ${cly}${2}${cend}${tn}"
-			[[ -f "${file_name}" ]] && rm -rf {"${qbt_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
+			if [[ -f "${file_name}" ]]; then
+				tar tf "${file_name}" | grep -Eqom1 "(.*)[^/]"
+				post_command
+				rm -rf {"${qbt_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
+			fi
 			curl "${2}" -o "${file_name}"
 		fi
 
@@ -949,11 +953,11 @@ _cmd() {
 # build command test
 #######################################################################################################################################################
 post_command() {
-	outcome="${PIPESTATUS[0]}"
+	outcome=("${PIPESTATUS[@]}")
 	[[ -n "${1}" ]] && command_type="${1}"
-	if [[ ${outcome} -gt '0' ]]; then
-		echo -e "${tn} ${urc}${clr} Error: The ${command_type} command produced an exit code greater than 0 - Check the logs${cend}${tn}"
-		exit "${outcome}"
+	if [[ "${outcome[*]}" =~ [1-9] ]]; then
+		echo -e "${tn} ${urc}${clr} Error: The ${command_type:-tested} command produced an exit code greater than 0 - Check the logs${cend}${tn}"
+		exit 1
 	fi
 }
 #######################################################################################################################################################
@@ -1985,7 +1989,7 @@ application_name boost
 #
 if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	custom_flags_set
-	#
+
 	[[ -d "${qbt_install_dir}/boost" ]] && delete_function "${app_name}"
 
 	if [[ "${qbt_workflow_files}" == 'yes' || "${qbt_workflow_artifacts}" == 'yes' || "${boost_url_status}" =~ (200) ]]; then
