@@ -21,7 +21,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="1.0.0"
+script_version="1.0.2"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -723,7 +723,6 @@ apply_patches() {
 		default_jamfile="RC_${default_jamfile%_*}"
 	fi
 
-	openssl_patch_tag="${openssl_version}"
 	qbittorrent_patch_tag="${qbittorrent_github_tag#release-}" # qbittorrent has a consistent tag format of release-4.3.1.
 
 	if [[ "${patch_app_name}" == 'bootstrap-help' ]]; then # All the core variables we need for the help command are set so we can exit this function now.
@@ -752,12 +751,12 @@ apply_patches() {
 		[[ ! -d "${patch_dir}" ]] && mkdir -p "${patch_dir}"
 
 		if [[ -f "${patch_file}" ]]; then
-			echo
+			[[ ${qbt_workflow_files} = no ]] && echo
 			echo -e " ${utick}${cr} Using ${!patch_tag} existing patch file${cend} - ${patch_file}"
 			[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 		else
 			if curl_curl "${patch_file_url}" -o "${patch_file}"; then
-				echo
+				[[ ${qbt_workflow_files} = no ]] && echo
 				echo -e " ${utick}${cr} Using ${!patch_tag} downloaded patch file${cend} - ${patch_file_url}"
 				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
@@ -766,16 +765,16 @@ apply_patches() {
 		if [[ "${patch_app_name}" == 'libtorrent' ]]; then
 			if [[ -f "${patch_dir}/Jamfile" ]]; then
 				cp -f "${patch_dir}/Jamfile" "${patch_jamfile}"
-				echo
+				[[ ${qbt_workflow_files} = no ]] && echo
 				echo -e " ${utick}${cr} Using existing custom Jamfile file${cend}"
 				echo
 			elif curl_curl "${patch_jamfile_url}" -o "${patch_jamfile}"; then
-				echo
+				[[ ${qbt_workflow_files} = no ]] && echo
 				echo -e " ${utick}${cr} Using downloaded custom Jamfile file${cend}"
 				echo
 			elif [[ "${qbt_libtorrent_master_jamfile}" == 'yes' ]]; then
+				[[ ${qbt_workflow_files} = no ]] && echo
 				curl_curl "https://raw.githubusercontent.com/arvidn/libtorrent/${default_jamfile}/Jamfile" -o "${patch_jamfile}"
-				echo
 				echo -e " ${utick}${cr} Using libtorrent branch master Jamfile file${cend}"
 				echo
 			else
@@ -801,6 +800,15 @@ _cd() {
 	fi
 }
 #######################################################################################################################################################
+# This function is to test a directory exists before attemtping to cd and fail with and exit code if it doesn't.
+#######################################################################################################################################################
+tee() {
+	[[ "$#" -eq 1 && "${1%/*}" =~ / ]] && mkdir -p "${1%/*}"
+	[[ "$#" -eq 2 && "${2%/*}" =~ / ]] && mkdir -p "${2%/*}"
+	command tee "$@"
+}
+
+#######################################################################################################################################################
 # This function is for downloading source code archives
 #######################################################################################################################################################
 download_file() {
@@ -814,7 +822,7 @@ download_file() {
 			file_name="${qbt_install_dir}/${1}.t${2##*.t}"
 			echo -e "${tn} ${uplus}${cg} Installing ${1}${cend} - ${cly}${2}${cend}${tn}"
 			if [[ -f "${file_name}" ]]; then
-				tar tf "${file_name}" | grep -Eqom1 "(.*)[^/]"
+				grep -Eqom1 "(.*)[^/]" <(tar tf "${file_name}")
 				post_command
 				rm -rf {"${qbt_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
 			fi
@@ -1032,7 +1040,7 @@ _multi_arch() {
 							qbt_zlib_arch="x86_64"
 							;;&
 						debian | ubuntu)
-							cross_arch="x86_64"
+							cross_arch="amd64"
 							qbt_cross_host="x86_64-linux-gnu"
 							;;&
 						*)
@@ -1207,7 +1215,7 @@ _cmake() {
 					-D CMAKE_BUILD_TYPE="release" \
 					-D CMAKE_CXX_STANDARD="${standard}" \
 					-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
-					-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/ninja.log"
+					-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee "${qbt_install_dir}/logs/ninja.log"
 				cmake --build build -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/ninja.log"
 
 				post_command build
@@ -1967,8 +1975,6 @@ if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
 
-	apply_patches "${app_name}"
-
 	"${multi_openssl[@]}" --prefix="${qbt_install_dir}" --libdir="${lib_dir}" --openssldir="/etc/ssl" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qbt_install_dir}/logs/${app_name}.log"
 	make -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
 
@@ -2019,7 +2025,7 @@ fi
 # libtorrent installation
 #######################################################################################################################################################
 application_name libtorrent
-#
+
 if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	if [[ ! -d "${qbt_install_dir}/boost" ]]; then
 		echo -e "${tn} ${urc}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost libtorrent${cend}"
