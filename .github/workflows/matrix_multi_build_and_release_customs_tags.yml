@@ -10,12 +10,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os_id: [alpine]
-        os_version_id: [edge]
-        arch_type: [x86_64, armhf, armv7, aarch64]
+        os_id: ["alpine"]
+        os_version_id: ["edge"]
+        arch_type: ["x86_64", "armhf", "armv7", "aarch64"]
         libtorrent_version: ["2.0"]
-        build_tool: ["qmake", cmake]
-        qbittorrent_tag: ["-qt release-4.4.3.1"]
+        build_tool: ["qmake", "cmake"]
+        qbittorrent_tag: ["-qt master", "-qt release-4.4.3.1"]
         include:
           - build_tool: "qmake"
             qbt_qt_version_name: "qt5-"
